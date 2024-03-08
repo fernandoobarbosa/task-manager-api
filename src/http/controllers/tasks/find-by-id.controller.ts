@@ -7,7 +7,6 @@ export async function findById(request: FastifyRequest, reply: FastifyReply) {
     id: z.string(),
   })
 
-  console.log(request.user)
   const { id } = routeSchema.parse(request.params)
 
   const findTaskByIdUseCase = await makeFindByIdTaskUseCase()

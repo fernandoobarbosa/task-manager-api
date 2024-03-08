@@ -18,13 +18,10 @@ export class FindTaskByIdUseCase {
     id,
     userId,
   }: FindTaskByIdUseCaseRequest): Promise<FindTaskByIdUseCaseResponse> {
-    console.log(userId)
     const task = await this.tasksRepository.findById({
       id,
       userId,
     })
-
-    console.log(task)
 
     if (!task) {
       throw new ResourceNotFoundError()
