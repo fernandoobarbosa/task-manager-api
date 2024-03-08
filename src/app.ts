@@ -6,6 +6,7 @@ import { fromZodError } from 'zod-validation-error'
 import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
 import { tasksRoutes } from './http/controllers/tasks/tasks.routes'
+import { ResourceNotFoundError } from './use-cases/errors/resource-not-found.error'
 
 export const app = fastify()
 
@@ -30,6 +31,11 @@ app.setErrorHandler((error, _, reply) => {
     return reply
       .status(400)
       .send({ message: 'Validation error.', issues: fromZodError(error) })
+  }
+
+  if (error instanceof ResourceNotFoundError) {
+    console.log(error)
+    return reply.status(404).send({ message: error.message })
   }
 
   if (env.NODE_ENV !== 'prod') {
