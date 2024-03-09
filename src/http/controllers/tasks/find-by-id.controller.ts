@@ -4,16 +4,18 @@ import { makeFindByIdTaskUseCase } from '@/use-cases/factories/make-find-task-by
 
 export async function findById(request: FastifyRequest, reply: FastifyReply) {
   const routeSchema = z.object({
-    id: z.string(),
+    userId: z.string(),
+    taskId: z.string(),
   })
 
-  const { id } = routeSchema.parse(request.params)
+  const { userId, taskId } = routeSchema.parse(request.params)
 
   const findTaskByIdUseCase = await makeFindByIdTaskUseCase()
 
   const { task } = await findTaskByIdUseCase.execute({
-    id,
-    userId: request.user.sub,
+    taskId,
+    userId,
+    authenticatedUserId: request.user.sub,
   })
 
   return reply.status(200).send(task)

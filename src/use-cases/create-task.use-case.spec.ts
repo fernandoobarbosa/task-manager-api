@@ -28,6 +28,7 @@ describe('Create Task Use Case', () => {
       title: 'Titulo da task',
       content: 'Conteudo da task',
       priority: Priority.MEDIUM,
+      authenticatedUserId: user.id,
     })
 
     expect(task.id).toEqual(expect.any(String))

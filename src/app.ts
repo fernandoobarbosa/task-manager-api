@@ -7,6 +7,7 @@ import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
 import { tasksRoutes } from './http/controllers/tasks/tasks.routes'
 import { ResourceNotFoundError } from './use-cases/errors/resource-not-found.error'
+import { ForbiddenError } from './use-cases/errors/forbidden.error'
 
 export const app = fastify()
 
@@ -34,8 +35,11 @@ app.setErrorHandler((error, _, reply) => {
   }
 
   if (error instanceof ResourceNotFoundError) {
-    console.log(error)
     return reply.status(404).send({ message: error.message })
+  }
+
+  if (error instanceof ForbiddenError) {
+    return reply.status(403).send({ message: error.message })
   }
 
   if (env.NODE_ENV !== 'prod') {

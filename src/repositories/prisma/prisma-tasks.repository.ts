@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { FindByIdParams, TasksRepository } from '../tasks.repository'
+import { TasksRepository } from '../tasks.repository'
 import { prisma } from '@/lib/prisma'
 
 export class PrismaTasksRepository implements TasksRepository {
@@ -8,13 +8,10 @@ export class PrismaTasksRepository implements TasksRepository {
     return task
   }
 
-  async findById(params: FindByIdParams) {
+  async findById(id: string) {
     const task = await prisma.task.findUnique({
       where: {
-        id: params.id,
-        AND: {
-          userId: params.userId,
-        },
+        id,
       },
     })
 

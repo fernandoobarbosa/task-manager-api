@@ -1,5 +1,5 @@
 import { Priority, Prisma, Status, Task } from '@prisma/client'
-import { FindByIdParams, TasksRepository } from '../tasks.repository'
+import { TasksRepository } from '../tasks.repository'
 import { randomUUID } from 'crypto'
 
 export class InMemoryTasksRepository implements TasksRepository {
@@ -15,6 +15,7 @@ export class InMemoryTasksRepository implements TasksRepository {
       createdAt: new Date(),
       updatedAt: null,
       userId: data.userId ?? randomUUID(),
+      deletedAt: null,
     }
 
     this.items.push(task)
@@ -22,10 +23,8 @@ export class InMemoryTasksRepository implements TasksRepository {
     return task
   }
 
-  async findById(params: FindByIdParams) {
-    const task = this.items.find(
-      (task) => task.userId === params.userId && task.id === params.id,
-    )
+  async findById(id: string) {
+    const task = this.items.find((task) => task.id === id)
 
     if (!task) {
       return null

@@ -10,16 +10,23 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
     priority: z.nativeEnum(Priority),
   })
 
+  const routeSchema = z.object({
+    userId: z.string(),
+  })
+
   const { title, content, priority } = registerBodySchema.parse(request.body)
+
+  const { userId } = routeSchema.parse(request.params)
 
   const createTaskUseCase = makeCreateTaskUseCase()
 
-  await createTaskUseCase.execute({
+  const { task } = await createTaskUseCase.execute({
     title,
     content,
     priority,
-    userId: request.user.sub,
+    userId,
+    authenticatedUserId: request.user.sub,
   })
 
-  return reply.status(201).send()
+  return reply.status(201).send({ id: task.id })
 }

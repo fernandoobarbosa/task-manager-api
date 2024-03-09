@@ -1,10 +1,12 @@
 import { PrismaTasksRepository } from '@/repositories/prisma/prisma-tasks.repository'
 import { Task } from '@prisma/client'
 import { ResourceNotFoundError } from './errors/resource-not-found.error'
+import { ForbiddenError } from './errors/forbidden.error'
 
 interface FindTaskByIdUseCaseRequest {
-  id: string
+  taskId: string
   userId: string
+  authenticatedUserId: string
 }
 
 interface FindTaskByIdUseCaseResponse {
@@ -15,13 +17,15 @@ export class FindTaskByIdUseCase {
   constructor(private tasksRepository: PrismaTasksRepository) {}
 
   async execute({
-    id,
+    taskId,
     userId,
+    authenticatedUserId,
   }: FindTaskByIdUseCaseRequest): Promise<FindTaskByIdUseCaseResponse> {
-    const task = await this.tasksRepository.findById({
-      id,
-      userId,
-    })
+    if (userId !== authenticatedUserId) {
+      throw new ForbiddenError()
+    }
+
+    const task = await this.tasksRepository.findById(taskId)
 
     if (!task) {
       throw new ResourceNotFoundError()
