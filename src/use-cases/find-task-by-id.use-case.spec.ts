@@ -4,6 +4,7 @@ import { InMemoryTasksRepository } from '@/repositories/in-memory/in-memory-task
 import { randomUUID } from 'node:crypto'
 import { Priority } from '@prisma/client'
 import { ResourceNotFoundError } from './errors/resource-not-found.error'
+import { ForbiddenError } from './errors/forbidden.error'
 
 let tasksRepository: InMemoryTasksRepository
 let sut: FindTaskByIdUseCase
@@ -24,18 +25,21 @@ describe('Find Task By Id Use Case', () => {
     })
 
     const { task } = await sut.execute({
-      id: createdTask.id,
+      taskId: createdTask.id,
       userId,
+      authenticatedUserId: userId,
     })
 
     expect(task.id).toEqual(createdTask.id)
     expect(task.userId).toEqual(userId)
   })
   it('should not be able to return a task with a non-existing id', async () => {
+    const userId = randomUUID()
     await expect(
       sut.execute({
-        id: randomUUID(),
-        userId: randomUUID(),
+        taskId: randomUUID(),
+        userId,
+        authenticatedUserId: userId,
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
@@ -49,9 +53,10 @@ describe('Find Task By Id Use Case', () => {
 
     await expect(
       sut.execute({
-        id: createdTask.id,
+        taskId: createdTask.id,
         userId: randomUUID(),
+        authenticatedUserId: randomUUID(),
       }),
-    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+    ).rejects.toBeInstanceOf(ForbiddenError)
   })
 })
