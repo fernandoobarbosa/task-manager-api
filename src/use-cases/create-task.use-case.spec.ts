@@ -4,6 +4,8 @@ import { InMemoryTasksRepository } from '@/repositories/in-memory/in-memory-task
 import { CreateTaskUseCase } from './create-task.use-case'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users.repository'
 import { Priority, Status } from '@prisma/client'
+import { randomUUID } from 'node:crypto'
+import { ForbiddenError } from './errors/forbidden.error'
 
 let usersRepository: InMemoryUsersRepository
 let tasksRepository: InMemoryTasksRepository
@@ -35,5 +37,23 @@ describe('Create Task Use Case', () => {
     expect(task.userId).toEqual(user.id)
     expect(task.priority).toEqual(Priority.MEDIUM)
     expect(task.status).toEqual(Status.TODO)
+  })
+
+  it('should not be able to create a task with wrong user', async () => {
+    const user = await usersRepository.create({
+      name: 'John doe',
+      email: 'johndoe@email.com',
+      password: await hash('123456', 6),
+    })
+
+    await expect(
+      sut.execute({
+        userId: user.id,
+        title: 'Titulo da task',
+        content: 'Conteudo da task',
+        priority: Priority.MEDIUM,
+        authenticatedUserId: randomUUID(),
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenError)
   })
 })
