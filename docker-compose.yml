@@ -9,3 +9,13 @@ services:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=api
+
+  api-redis:
+    command: redis-server --appendonly no
+    container_name: api-redis
+    image: redis:5.0.9-alpine
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    volumes:
+      - ./data/redis:/data
